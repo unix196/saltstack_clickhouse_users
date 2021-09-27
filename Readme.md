@@ -41,7 +41,7 @@ from system.query_log
 where notEmpty(user)
 GROUP BY initial_user, user;
 ```
-This query can provide information for migration from xml to user mode in existing Clickhouse installation.
+This query can provide information for migration from xml to sql mode in existing Clickhouse installation.
 
 
 | initial_user |	user |	op |

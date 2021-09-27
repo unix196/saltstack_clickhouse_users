@@ -1,0 +1,55 @@
+{% set clickhouse = {
+    'config_dir': '/etc/clickhouse-server',
+    'database_dir': '/home/clickhouse/database',
+    'docker': {
+        'image':{
+            'name': 'yandex/clickhouse-server',
+            'version': 'latest',
+        },
+        'container':{
+            'name': 'clickhouse',
+            'hostname': grains.localhost,
+            'tcp_port': 9000,
+            'http_port': 8123,
+            'interserver_http_port': 9009,
+            'database_dir': '/var/lib/clickhouse',
+            'log_dir': '/var/log/clickhouse-server',
+            'config_dir': '/etc/clickhouse-server',
+            'restart_policy': 'always',
+            'memory_limit': '64G'
+        },
+    },
+    'group': 'clickhouse',
+    'log_dir': '/home/clickhouse/logs',
+    'uid': 3000,
+    'user': 'clickhouse',
+    'config': {
+        'users': {
+            'profiles': {
+                'default': {
+                    'max_memory_usage': 10000000000,
+                    'use_uncompressed_cache': 0,
+                    'load_balancing': 'random',
+                },
+            },
+            'users': {
+            },
+            'quotas': {
+                'default': {
+                    'intervals': [
+                        {
+                            'duration': 3600,
+                            'queries': 0,
+                            'errors': 0,
+                            'result_rows': 0,
+                            'read_rows': 0,
+                            'execution_time': 0,
+                        },
+                    ],
+                },
+            },
+        },
+    },
+} %}
+
+{% set clickhouse = salt['pillar.get']('clickhouse', default=clickhouse, merge=True) %}

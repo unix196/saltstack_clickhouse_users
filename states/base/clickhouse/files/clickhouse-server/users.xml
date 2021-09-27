@@ -1,0 +1,51 @@
+{%- from 'clickhouse/map.jinja' import clickhouse -%}
+
+<?xml version="1.0"?>
+<yandex>
+    <profiles>
+{%- for name, settings in clickhouse.config.users.profiles | dictsort %}
+        <{{ name }}>
+            {%- for setting_name, setting_value in settings | dictsort() %}
+             <{{ setting_name }}>{{ setting_value }}</{{ setting_name }}> {# <log_queries>1</log_queries> #}
+            {%- endfor %}
+        </{{ name }}>
+{%- endfor %}
+    </profiles>
+
+    <users>
+{%- for name, settings in clickhouse.config.users.users.xml | dictsort %}
+        <{{ name }}>
+            <password_sha256_hex>{{ settings.password_sha256_hex }}</password_sha256_hex>
+        {%- if settings.networks is defined %}
+            <networks>
+            {%- if settings.networks.ips is defined %}
+                {%- for ip in settings.networks.ips %}
+                <ip>{{ ip }}</ip>
+                {%- endfor %}
+            {%- endif %}
+            </networks>
+            <profile>{{ settings.profile }}</profile>
+            <quota>{{ settings.quota }}</quota>
+            <access_management>{{ settings.access_management }}</access_management>
+        {%- endif %}
+        </{{ name }}>
+{%- endfor %}
+    </users>
+
+    <quotas>
+{%- for name, settings in clickhouse.config.users.quotas | dictsort %}
+        <{{ name }}>
+    {%- for interval in settings.intervals %}
+        <interval>
+            <duration>{{ interval.duration }}</duration>
+            <errors>{{ interval.errors | default(0) }}</errors>
+            <execution_time>{{ interval.execution_time | default(0) }}</execution_time>
+            <queries>{{ interval.queries | default(0) }}</queries>
+            <read_rows>{{ interval.read_rows | default(0) }}</read_rows>
+            <result_rows>{{ interval.result_rows | default(0) }}</result_rows>
+        </interval>
+    {%- endfor %}
+        </{{ name }}>
+{%- endfor %}
+    </quotas>
+</yandex>
